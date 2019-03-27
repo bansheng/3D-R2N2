@@ -9,4 +9,5 @@ def load_demo_images():
             (2, 0, 1)).astype(np.float32) / 255.])
     return np.array(ims)
 
-print(load_demo_images())
+load_demo_images()
+# print(load_demo_images())

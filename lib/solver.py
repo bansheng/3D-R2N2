@@ -1,9 +1,10 @@
 import os
 import sys
+from datetime import datetime
+
+import numpy as np
 import theano
 import theano.tensor as T
-import numpy as np
-from datetime import datetime
 
 from lib.config import cfg
 from lib.utils import Timer

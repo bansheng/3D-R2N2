@@ -48,6 +48,7 @@ def load_demo_images():
 def main():
     '''Main demo function'''
     # Save prediction into a file named 'prediction.obj' or the given argument
+    # 设置obj文件名称
     pred_file_name = sys.argv[1] if len(sys.argv) > 1 else 'prediction.obj'
 
     # load images
