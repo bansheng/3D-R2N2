@@ -10,3 +10,4 @@ wiki/
 
 # Results
 output/
+.vscode/settings.json

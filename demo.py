@@ -5,19 +5,21 @@ Choy et al., 3D-R2N2: A Unified Approach for Single and Multi-view 3D Object
 Reconstruction, ECCV 2016
 '''
 import os
-import sys
-if (sys.version_info < (3, 0)):
-    raise Exception("Please follow the installation instruction on 'https://github.com/chrischoy/3D-R2N2'")
-
 import shutil
-import numpy as np
+import sys
 from subprocess import call
 
+import numpy as np
 from PIL import Image
-from models import load_model
+
 from lib.config import cfg, cfg_from_list
 from lib.solver import Solver
 from lib.voxel import voxel2obj
+from models import load_model
+
+if sys.version_info < (3, 0):
+    raise Exception("Please follow the installation \
+    instruction on 'https://github.com/chrischoy/3D-R2N2'")
 
 DEFAULT_WEIGHTS = 'output/ResidualGRUNet/default_model/weights.npy'
 
