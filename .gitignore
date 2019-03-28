@@ -11,3 +11,4 @@ wiki/
 # Results
 output/
 .vscode/settings.json
+prediction.obj
