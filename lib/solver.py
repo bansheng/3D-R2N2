@@ -76,12 +76,12 @@ class Solver(object):
 
     def __init__(self, net):
         self.net = net
-        self.lr = theano.shared(np.float32(1))
-        self.iteration = theano.shared(np.float32(0))  # starts from 0
+        self.lr = theano.shared(np.float32(1)) # lr参数暂时没看懂
+        self.iteration = theano.shared(np.float32(0))  # starts from 0 迭代次数
         self._test = None
         self._train_loss = None
         self._test_output = None
-        self.compile_model(cfg.TRAIN.POLICY)
+        self.compile_model(cfg.TRAIN.POLICY) # 训练方法adam sgd
 
     def compile_model(self, policy=cfg.TRAIN.POLICY):
         net = self.net

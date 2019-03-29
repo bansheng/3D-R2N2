@@ -175,8 +175,9 @@ class ReconstructionDataProcess(DataProcess):
 
 def kill_processes(queue, processes):
     print('Signal processes')
-    for p in processes:
-        p.shutdown()
+    if processes:
+        for p in processes:
+            p.shutdown()
 
     print('Empty queue')
     while not queue.empty():
@@ -184,8 +185,9 @@ def kill_processes(queue, processes):
         queue.get(False)
 
     print('kill processes')
-    for p in processes:
-        p.terminate()
+    if processes:
+        for p in processes:
+            p.terminate()
 
 
 def make_data_processes(queue, data_paths, num_workers, repeat=True, train=True):

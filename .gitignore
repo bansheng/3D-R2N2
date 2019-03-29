@@ -12,3 +12,4 @@ wiki/
 output/
 .vscode/settings.json
 prediction.obj
+ShapeNet/ShapeNetRendering.tgz
