@@ -1,7 +1,7 @@
-import numpy as np
-
 # Theano
 import collections
+
+import numpy as np
 import theano
 import theano.tensor as tensor
 from theano.tensor.nnet import conv, conv3d2d, sigmoid
