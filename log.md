@@ -52,4 +52,4 @@ RuntimeError: To use MKL 2018 with Theano you MUST set "MKL_THREADING_LAYER=GNU"
 + 存储单元（存储单元和隐藏状态
 + 控制从输入到隐藏状态（输入门）
 + 从隐藏状态到输出的信息流的三个门 （输出门）
-+ 从前一个隐藏状态到当前隐藏状态（忘记门）。
++ 从前一个隐藏状态到当前隐藏状态（忘记门）。git
