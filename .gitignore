@@ -10,6 +10,12 @@ wiki/
 
 # Results
 output/
+
+# vscode
 .vscode/settings.json
-prediction.obj
-ShapeNet/ShapeNetRendering.tgz
+
+# .obj
+*.obj
+
+# dataset
+ShapeNet/

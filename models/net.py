@@ -6,7 +6,7 @@ import theano
 import theano.tensor as tensor
 from lib.config import cfg
 
-tensor5 = tensor.TensorType(theano.config.floatX, (False,) * 5)
+tensor5 = tensor.TensorType(theano.config.floatX, (False,) * 5) #定义tensor的类型
 
 
 class Net(object):
@@ -22,6 +22,7 @@ class Net(object):
 
         # (self.batch_size, 3, self.img_h, self.img_w),
         # override x and is_x_tensor4 when using multi-view network
+        # 4维向量，包括三通道的像素值
         self.x = tensor.tensor4()
         self.is_x_tensor4 = True
 
@@ -53,7 +54,7 @@ class Net(object):
     def add_layer(self, layer):
         raise NotImplementedError("TODO: add a layer")
 
-    def post_processing(self):
+    def post_processing(self): #计算的下降率
         if self.compute_grad:
             self.grads = tensor.grad(self.loss, [param.val for param in self.params])
 
@@ -64,7 +65,7 @@ class Net(object):
             # params_cpu[param.name] = np.array(param.val.get_value())
             params_cpu.append(param.val.get_value())
         np.save(filename, params_cpu)
-        print('saving network parameters to ' + filename)
+        print('saving network parameters to ' + filename) #将参数存储到npy里面去
 
     def load(self, filename, ignore_param=True):
         print('loading network parameters from ' + filename)

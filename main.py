@@ -80,10 +80,10 @@ def main():
     if args.cfg_files is not None:
         for cfg_file in args.cfg_files:
             cfg_from_file(cfg_file)
-    if args.set_cfgs is not None:
+    if args.set_cfgs is not None: #set config.py
         cfg_from_list(args.set_cfgs)
     if not args.randomize:
-        np.random.seed(cfg.CONST.RNG_SEED)
+        np.random.seed(cfg.CONST.RNG_SEED) # 0
         # np.random.seed(cfg.CONST.RNG_SEED)
 
     if args.batch_size is not None:

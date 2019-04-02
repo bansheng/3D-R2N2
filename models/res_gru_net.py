@@ -13,7 +13,7 @@ from lib.layers import TensorProductLayer, ConvLayer, PoolLayer, Unpool3DLayer, 
 
 class ResidualGRUNet(Net):
 
-    def network_definition(self):
+    def network_definition(self): #重写网络构建的方法
 
         # (multi_views, self.batch_size, 3, self.img_h, self.img_w),
         self.x = tensor5()

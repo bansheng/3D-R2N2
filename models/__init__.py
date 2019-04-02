@@ -2,7 +2,7 @@ from models.gru_net import GRUNet
 from models.res_gru_net import ResidualGRUNet
 
 MODELS = (GRUNet, ResidualGRUNet)
-
+# 门控循环单元 Gated Recurrent Units
 
 def get_models():
     '''Returns a tuple of sample models.'''
