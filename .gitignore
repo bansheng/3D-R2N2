@@ -1,6 +1,6 @@
 # Python cache
 *.pyc
-
+*ipynb*
 # OS X temporary metadata
 ._*
 *.DS_Store
@@ -10,3 +10,16 @@ wiki/
 
 # Results
 output/
+
+# Shapenet
+ShapeNet/
+
+# .obj
+*.obj
+
+# .vscode
+.vscode/
+
+# pycharm
+.idea/
+

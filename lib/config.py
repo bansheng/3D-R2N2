@@ -14,7 +14,7 @@ __C.NET_NAME = 'res_gru_net'
 __C.PROFILE = False
 
 __C.CONST = edict()
-__C.CONST.DEVICE = 'gpu0'
+__C.CONST.DEVICE = 'cuda'
 __C.CONST.RNG_SEED = 0
 __C.CONST.IMG_W = 127
 __C.CONST.IMG_H = 127
