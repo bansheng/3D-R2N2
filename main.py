@@ -84,6 +84,7 @@ def main():
         cfg_from_list(args.set_cfgs)
     if not args.randomize:
         np.random.seed(cfg.CONST.RNG_SEED)
+        # np.random.seed(cfg.CONST.RNG_SEED)
 
     if args.batch_size is not None:
         cfg_from_list(['CONST.BATCH_SIZE', args.batch_size])
