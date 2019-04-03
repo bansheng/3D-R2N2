@@ -19,3 +19,6 @@ output/
 
 # dataset
 ShapeNet/
+
+# 论文阅读
+3D-R2N2-read.md
