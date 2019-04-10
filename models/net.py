@@ -65,18 +65,18 @@ class Net(object):
             # params_cpu[param.name] = np.array(param.val.get_value())
             params_cpu.append(param.val.get_value())
         np.save(filename, params_cpu)
-        print('saving network parameters to ' + filename) #将参数存储到npy里面去
+        print('saving network parameters to ' + filename) #将参数存储到npy里面去 npy是np数据的存储形式
 
-    def load(self, filename, ignore_param=True):
+    def load(self, filename, ignore_param=True): #从npy中读取数据
         print('loading network parameters from ' + filename)
         params_cpu_file = np.load(filename)
-        if filename.endswith('npz'):
-            params_cpu = params_cpu_file[params_cpu_file.keys()[0]]
+        if filename.endswith('npz'): # npz文件里面保存的是多个数组 npz文件解压以后是多个npy文件
+            params_cpu = params_cpu_file[params_cpu_file.keys()[0]] # 获取数组名列表以后只需要第一个数组
         else:
             params_cpu = params_cpu_file
 
         succ_ind = 0
-        for param_idx, param in enumerate(self.params):
+        for param_idx, param in enumerate(self.params): # enumerate类 iterator for index, value of iterable，返回的是一个元祖
             try:
                 param.val.set_value(params_cpu[succ_ind])
                 succ_ind += 1
