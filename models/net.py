@@ -23,7 +23,7 @@ class Net(object):
         # (self.batch_size, 3, self.img_h, self.img_w),
         # override x and is_x_tensor4 when using multi-view network
         # 4维向量，包括三通道的像素值
-        self.x = tensor.tensor4()
+        self.x = tensor.tensor4() # 注意这里面的x和y都是tensor 相当于tensorflow 里面的 tf.placeholder() 需要被feed
         self.is_x_tensor4 = True
 
         # (self.batch_size, self.n_vox, 2, self.n_vox, self.n_vox),
@@ -38,7 +38,7 @@ class Net(object):
         self.setup()
 
     def setup(self):
-        self.network_definition()
+        self.network_definition() # 网络的构建函数以及grad函数依赖继承的类的实现
         self.post_processing()
 
     def network_definition(self):
@@ -54,7 +54,7 @@ class Net(object):
     def add_layer(self, layer):
         raise NotImplementedError("TODO: add a layer")
 
-    def post_processing(self): #计算的下降率
+    def post_processing(self): #指定grad函数
         if self.compute_grad:
             self.grads = tensor.grad(self.loss, [param.val for param in self.params])
 

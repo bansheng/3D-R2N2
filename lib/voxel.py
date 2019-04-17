@@ -11,7 +11,7 @@ def evaluate_voxel_prediction(preds, gt, thresh):
     return np.array([diff, intersection, union, num_fp, num_fn])
 
 
-def voxel2mesh(voxels, surface_view):
+def voxel2mesh(voxels, surface_view): # 体素到网格
     cube_verts = [[0, 0, 0], [0, 0, 1], [0, 1, 0], [0, 1, 1], [1, 0, 0], [1, 0, 1], [1, 1, 0],
                   [1, 1, 1]]  # 8 points
 
@@ -53,6 +53,6 @@ def write_obj(filename, verts, faces):
             f.write('f %d %d %d\n' % tuple(face))
 
 
-def voxel2obj(filename, pred, surface_view = True):
+def voxel2obj(filename, pred, surface_view=True):
     verts, faces = voxel2mesh(pred, surface_view)
     write_obj(filename, verts, faces)

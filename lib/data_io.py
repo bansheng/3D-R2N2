@@ -17,13 +17,14 @@ def category_model_id_pair(dataset_portion=[]):
     '''
 
     def model_names(model_path):
-        """ Return model names"""
+        """ Return model names"""# sofa,couch,lounge
         model_names = [name for name in os.listdir(model_path)
                        if os.path.isdir(os.path.join(model_path, name))]
         return sorted(model_names)
 
     category_name_pair = []  # full path of the objs files
 
+    # './experiments/dataset/shapenet_1000.json'  # yaml/json file that specifies a dataset (training/testing)
     cats = json.load(open(cfg.DATASET))
     cats = OrderedDict(sorted(cats.items(), key=lambda x: x[0]))
 
@@ -36,7 +37,8 @@ def category_model_id_pair(dataset_portion=[]):
         portioned_models = models[int(num_models * dataset_portion[0]):int(num_models *
                                                                            dataset_portion[1])]
 
-        category_name_pair.extend([(cat['id'], model_id) for model_id in portioned_models])
+        # 第一项为catid type:str eg:04256520 第二项为model_name类型为str eg:sofa,couch,lounge
+        category_name_pair.extend([(cat['id'], model_id) for model_id in portioned_models]) 
 
     print('lib/data_io.py: model paths from %s' % (cfg.DATASET))
 

@@ -39,7 +39,7 @@ def train_net():
 
     # Check that single view reconstruction net is not used for multi view
     # reconstruction.
-    if net.is_x_tensor4 and cfg.CONST.N_VIEWS > 1:
+    if net.is_x_tensor4 and cfg.CONST.N_VIEWS > 1: # 单幅图片进行重建
         raise ValueError('Do not set the config.CONST.N_VIEWS > 1 when using' \
                          'single-view reconstruction network')
 
@@ -51,9 +51,10 @@ def train_net():
     # Create worker and data queue for data processing. For training data, use
     # multiple processes to speed up the loading. For validation data, use 1
     # since the queue will be popped every TRAIN.NUM_VALIDATION_ITERATIONS.
+    # 每过 24 次迭代 queue就会pop头部的batch
     global train_queue, val_queue, train_processes, val_processes
-    train_queue = Queue(cfg.QUEUE_SIZE)
-    val_queue = Queue(cfg.QUEUE_SIZE)
+    train_queue = Queue(cfg.QUEUE_SIZE) # 15 训练队列
+    val_queue = Queue(cfg.QUEUE_SIZE) # 15 验证队列
 
     train_processes = make_data_processes(
         train_queue,

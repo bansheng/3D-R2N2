@@ -4,15 +4,14 @@ def load_demo_images():
     from PIL import Image
     ims = []
     for i in range(3):
-        im = Image.open('imgs/%d.jpg' % (i+3))
-        im = im.resize((127, 127))
-        im.show()
+        im = Image.open('imgs/%d.png' % (i))
+        # im = im.resize((127, 127))
+        # im.show()
+        print(type(np.array(im)[0][0])) # 127*127*3
         ims.append([np.array(im).transpose(
             (2, 0, 1)).astype(np.float32) / 255.])
     return np.array(ims)
 
-# load_demo_images()
-# print(load_demo_images())
 
 def scan_test1():
     import theano
@@ -39,6 +38,7 @@ def scan_test1():
     # 10 + 6 * 3 ^ 2 = 64
     # 64 + 5 * 3 ^ 3 = 199
 
+
 def scan_test2():
     import theano
     import theano.tensor as T
@@ -48,9 +48,55 @@ def scan_test2():
 
     max_value = T.iscalar('max_value')
     result, update = theano.scan(prod_2, outputs_info=T.constant(1.),
-                                non_sequences=[max_value], n_steps=100)
+                               non_sequences=[max_value], n_steps=100)
 
     prod_fn = theano.function([max_value], result, updates=update)
     print(prod_fn(400))
 
-scan_test2()
+
+from lib.config import cfg
+def json_load_test(dataset_portion=[]):
+    import os
+    import json
+    from collections import OrderedDict
+    
+
+    def model_names(model_path):
+        """ Return model names"""
+        model_names = [name for name in os.listdir(model_path)
+                       if os.path.isdir(os.path.join(model_path, name))]
+        return sorted(model_names)
+
+    category_name_pair = []  # full path of the objs files
+
+    # './experiments/dataset/shapenet_1000.json'  # yaml/json file that specifies a dataset (training/testing)
+    cats = json.load(open(cfg.DATASET)) # 嵌套字典
+    print(type(cats['04256520']))
+    for cat in cats.items():
+        print(cat)
+    print()
+    print(sorted(cats.items())[0])
+    print()
+    cats = OrderedDict(sorted(cats.items(), key=lambda x: x[0]))
+    for cat in cats.items():
+        print(cat)
+
+
+    # for k, cat in cats.items():  # load by categories
+    #     model_path = os.path.join(cfg.DIR.SHAPENET_QUERY_PATH, cat['id'])
+    #     # category = cat['name']
+    #     models = model_names(model_path)
+    #     num_models = len(models)
+
+    #     portioned_models = models[int(num_models * dataset_portion[0]):int(num_models *
+    #                                                                        dataset_portion[1])]
+
+    #     category_name_pair.extend([(cat['id'], model_id) for model_id in portioned_models])
+
+    # print('lib/data_io.py: model paths from %s' % (cfg.DATASET))
+
+    # return category_name_pair
+
+
+# load_demo_images()
+json_load_test(dataset_portion=cfg.TRAIN.DATASET_PORTION)

@@ -137,9 +137,9 @@ class ResidualGRUNet(Net):
                 rect7_, (n_deconvfilter[0], n_deconvfilter[0], 3, 3, 3),
                 params=t_x_s_reset.params)
 
-            update_gate_ = SigmoidLayer(t_x_s_update_)
-            comp_update_gate_ = ComplementLayer(update_gate_)
-            reset_gate_ = SigmoidLayer(t_x_s_reset_)
+            update_gate_ = SigmoidLayer(t_x_s_update_) #更新门
+            comp_update_gate_ = ComplementLayer(update_gate_) # 完整更新门
+            reset_gate_ = SigmoidLayer(t_x_s_reset_) # 重置门
 
             rs_ = EltwiseMultiplyLayer(reset_gate_, prev_s_)
             t_x_rs_ = FCConv3DLayer(
@@ -152,6 +152,10 @@ class ResidualGRUNet(Net):
 
             return gru_out_.output, update_gate_.output
 
+        #s_update = gru_out_.output
+        '''
+        https://blog.csdn.net/wangjian1204/article/details/50518591
+        '''
         s_update, _ = theano.scan(recurrence,
             sequences=[self.x],  # along with images, feed in the index of the current frame
             outputs_info=[tensor.zeros_like(np.zeros(s_shape),
@@ -201,4 +205,4 @@ class ResidualGRUNet(Net):
         self.error = softmax_loss.error(self.y)
         self.params = get_trainable_params()
         self.output = softmax_loss.prediction()
-        self.activations = [update_all]
+        self.activations = [update_all] # 激活函数

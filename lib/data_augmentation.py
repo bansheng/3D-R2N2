@@ -5,7 +5,8 @@ from PIL import Image
 
 def image_transform(img, crop_x, crop_y, crop_loc=None, color_tint=None):
     """
-    Takes numpy.array img
+    Takes numpy.array img 
+    对图片进行预处理，
     """
 
     # Slight translation
@@ -26,7 +27,7 @@ def image_transform(img, crop_x, crop_y, crop_loc=None, color_tint=None):
     return img
 
 
-def crop_center(im, new_height, new_width):
+def crop_center(im, new_height, new_width): # 将图片的中间部分抠出来
     height = im.shape[0]  # Get dimensions
     width = im.shape[1]
     left = (width - new_width) // 2
@@ -36,7 +37,7 @@ def crop_center(im, new_height, new_width):
     return im[top:bottom, left:right]
 
 
-def add_random_color_background(im, color_range):
+def add_random_color_background(im, color_range): # 添加随机背景色
     r, g, b = [np.random.randint(color_range[i][0], color_range[i][1] + 1) for i in range(3)]
 
     if isinstance(im, Image.Image):

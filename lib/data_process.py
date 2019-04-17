@@ -47,10 +47,11 @@ class DataProcess(Process):
         # Tuple of data shape
         self.batch_size = cfg.CONST.BATCH_SIZE
         self.exit = Event()
-        self.shuffle_db_inds()
+        self.shuffle_db_inds() # 训练队列初始化
 
-    def shuffle_db_inds(self):
-        # Randomly permute the training roidb
+    def shuffle_db_inds(self): # 只有repeat为真的时候才会重新对数据进行二次训练 否则只会进行顺序训练
+        # Randomly permute the training roidb 
+        # 随机创建训练样本的顺序
         if self.repeat:
             self.perm = np.random.permutation(np.arange(self.num_data))
         else:
@@ -60,8 +61,9 @@ class DataProcess(Process):
     def get_next_minibatch(self):
         if (self.cur + self.batch_size) >= self.num_data and self.repeat:
             self.shuffle_db_inds()
-
-        db_inds = self.perm[self.cur:min(self.cur + self.batch_size, self.num_data)]
+        
+        # 取出的来是个列表
+        db_inds = self.perm[self.cur:min(self.cur + self.batch_size, self.num_data)] # 训练队列中取出batch_size个样本
         self.cur += self.batch_size
         return db_inds
 
@@ -99,7 +101,7 @@ class DataProcess(Process):
         pass
 
 
-class ReconstructionDataProcess(DataProcess):
+class ReconstructionDataProcess(DataProcess): # 重建进程
 
     def __init__(self, data_queue, category_model_pair, background_imgs=[], repeat=True,
                  train=True):
@@ -117,7 +119,7 @@ class ReconstructionDataProcess(DataProcess):
         n_vox = cfg.CONST.N_VOX
 
         # This is the maximum number of views
-        n_views = cfg.CONST.N_VIEWS
+        n_views = cfg.CONST.N_VIEWS #每次最多5个
 
         while not self.exit.is_set() and self.cur <= self.num_data:
             # To insure that the network sees (almost) all images per epoch
@@ -130,42 +132,43 @@ class ReconstructionDataProcess(DataProcess):
                 curr_n_views = n_views
 
             # This will be fed into the queue. create new batch everytime
-            batch_img = np.zeros(
+            batch_img = np.zeros( # [n_views, batch_size, channel=3, img_h, img_w]
                 (curr_n_views, self.batch_size, 3, img_h, img_w), dtype=theano.config.floatX)
-            batch_voxel = np.zeros(
+            batch_voxel = np.zeros( # [batch_size, n_vox=32, 2, n_vox=32, n_vox=32]
                 (self.batch_size, n_vox, 2, n_vox, n_vox), dtype=theano.config.floatX)
 
             # load each data instance
             for batch_id, db_ind in enumerate(db_inds):
                 category, model_id = self.data_paths[db_ind]
-                image_ids = np.random.choice(cfg.TRAIN.NUM_RENDERING, curr_n_views)
+                image_ids = np.random.choice(cfg.TRAIN.NUM_RENDERING, curr_n_views) # [从0-23中随机抽取 curr_n_views个]
 
                 # load multi view images
                 for view_id, image_id in enumerate(image_ids):
-                    im = self.load_img(category, model_id, image_id)
+                    # img load进来的是 height width channel(channel=3 RGB图片)
+                    im = self.load_img(category, model_id, image_id) # './ShapeNet/ShapeNetRendering/%category/%model_name/rendering/%2d.png'
                     # channel, height, width
                     batch_img[view_id, batch_id, :, :, :] = \
                         im.transpose((2, 0, 1)).astype(theano.config.floatX)
 
-                voxel = self.load_label(category, model_id)
+                voxel = self.load_label(category, model_id) # './ShapeNet/ShapeNetVox32/%category/%model_name/model.binvox'
                 voxel_data = voxel.data
 
-                batch_voxel[batch_id, :, 0, :, :] = voxel_data < 1
-                batch_voxel[batch_id, :, 1, :, :] = voxel_data
+                batch_voxel[batch_id, :, 0, :, :] = voxel_data < 1 # 0号里面放的是bool矩阵但是好像是反的 true->false false->true
+                batch_voxel[batch_id, :, 1, :, :] = voxel_data # 1号里面放的是完整的体素信息
 
             # The following will wait until the queue frees
             self.data_queue.put((batch_img, batch_voxel), block=True)
 
         print('Exiting')
 
-    def load_img(self, category, model_id, image_id):
+    def load_img(self, category, model_id, image_id): # 加载渲染后的图片
         image_fn = get_rendering_file(category, model_id, image_id)
         im = Image.open(image_fn)
 
         t_im = preprocess_img(im, self.train)
         return t_im
 
-    def load_label(self, category, model_id):
+    def load_label(self, category, model_id): # 加载体素文件
         voxel_fn = get_voxel_file(category, model_id)
         with open(voxel_fn, 'rb') as f:
             voxel = read_as_3d_array(f)
@@ -195,7 +198,7 @@ def make_data_processes(queue, data_paths, num_workers, repeat=True, train=True)
     Make a set of data processes for parallel data loading.
     '''
     processes = []
-    for i in range(num_workers):
+    for i in range(num_workers): # 并行数据加载 其实包括训练和测试都是一个worker
         process = ReconstructionDataProcess(queue, data_paths, repeat=repeat, train=train)
         process.start()
         processes.append(process)

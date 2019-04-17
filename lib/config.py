@@ -20,7 +20,7 @@ __C.CONST.IMG_W = 127
 __C.CONST.IMG_H = 127
 __C.CONST.N_VOX = 32
 __C.CONST.N_VIEWS = 5
-__C.CONST.BATCH_SIZE = 36
+__C.CONST.BATCH_SIZE = 36 #这个batch_size可以进行修改
 __C.CONST.NETWORK_CLASS = 'ResidualGRUNet'
 __C.CONST.WEIGHTS = ''  # when set, load the weights from the file
 
@@ -40,21 +40,21 @@ __C.DIR.OUT_PATH = './output/default'
 #
 __C.TRAIN = edict()
 
-__C.TRAIN.RESUME_TRAIN = False
+__C.TRAIN.RESUME_TRAIN = False # 恢复训练 如果为true 则对已经保存的weight.npy文件读取到网络中
 __C.TRAIN.INITIAL_ITERATION = 0  # when the training resumes, set the iteration number
 __C.TRAIN.USE_REAL_IMG = False
-__C.TRAIN.DATASET_PORTION = [0, 0.8]
+__C.TRAIN.DATASET_PORTION = [0, 0.8] # 0-0.8作为训练集
 
 # Data worker
-__C.TRAIN.NUM_WORKER = 1  # number of data workers
+__C.TRAIN.NUM_WORKER = 1  # number of data workers 基本都是1
 __C.TRAIN.NUM_ITERATION = 60000  # maximum number of training iterations
 __C.TRAIN.WORKER_LIFESPAN = 100  # if use blender, kill a worker after some iteration to clear cache
 __C.TRAIN.WORKER_CAPACITY = 1000  # if use OSG, load only limited number of models at a time
-__C.TRAIN.NUM_RENDERING = 24
-__C.TRAIN.NUM_VALIDATION_ITERATIONS = 24
-__C.TRAIN.VALIDATION_FREQ = 2000
-__C.TRAIN.NAN_CHECK_FREQ = 2000
-__C.TRAIN.RANDOM_NUM_VIEWS = True  # feed in random # views if n_views > 1
+__C.TRAIN.NUM_RENDERING = 24 # 渲染的图片数目
+__C.TRAIN.NUM_VALIDATION_ITERATIONS = 24 # 验证迭代次数
+__C.TRAIN.VALIDATION_FREQ = 2000 # 每隔2000次训练，进行一次验证以及训练效果判断
+__C.TRAIN.NAN_CHECK_FREQ = 2000 #
+__C.TRAIN.RANDOM_NUM_VIEWS = True  # feed in random views if n_views > 1  如果是多张图片进行重建的话 feed的顺序随机
 
 __C.QUEUE_SIZE = 15  # maximum number of minibatches that can be put in a data queue
 
@@ -75,14 +75,14 @@ __C.TRAIN.DEFAULT_LEARNING_RATE = 1e-4
 __C.TRAIN.POLICY = 'adam'  # def: sgd, adam
 # The EasyDict can't use dict with integers as keys
 __C.TRAIN.LEARNING_RATES = {'20000': 1e-5, '60000': 1e-6}
-__C.TRAIN.MOMENTUM = 0.90
+__C.TRAIN.MOMENTUM = 0.90 # 动量
 # weight decay or regularization constant. If not set, the loss can diverge
 # after the training almost converged since weight can increase indefinitely
 # (for cross entropy loss). Too high regularization will also hinder training.
 __C.TRAIN.WEIGHT_DECAY = 0.00005
 __C.TRAIN.LOSS_LIMIT = 2  # stop training if the loss exceeds the limit
-__C.TRAIN.SAVE_FREQ = 10000  # weights will be overwritten every save_freq
-__C.TRAIN.PRINT_FREQ = 40
+__C.TRAIN.SAVE_FREQ = 10000  # weights will be overwritten every save_freq     weights文件被重写的次数
+__C.TRAIN.PRINT_FREQ = 40 # 打印信息迭代次数
 
 #
 # Testing options
@@ -91,14 +91,14 @@ __C.TEST = edict()
 __C.TEST.EXP_NAME = 'test'
 __C.TEST.USE_IMG = False
 __C.TEST.MODEL_ID = []
-__C.TEST.DATASET_PORTION = [0.8, 1]
+__C.TEST.DATASET_PORTION = [0.8, 1] # 0.8到1部分作为测试集
 __C.TEST.SAMPLE_SIZE = 0
 __C.TEST.IMG_PATH = ''
 __C.TEST.AZIMUTH = []
 __C.TEST.NO_BG_COLOR_RANGE = [[240, 240], [240, 240], [240, 240]]
 
 __C.TEST.VISUALIZE = False
-__C.TEST.VOXEL_THRESH = [0.4]
+__C.TEST.VOXEL_THRESH = [0.4] # 超过0.4认为存在
 
 
 def _merge_a_into_b(a, b):

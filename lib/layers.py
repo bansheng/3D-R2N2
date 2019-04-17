@@ -15,14 +15,14 @@ def get_trainable_params():
     return trainable_params
 
 
-class Weight(object):
+class Weight(object): # 创建weigh类,方便创建符合要求的weigh，即完成对weight矩阵的初始化
 
     def __init__(self,
                  w_shape,
-                 is_bias,
+                 is_bias, # bias标志，为true 指示这个Weight其实是一个bias常量
                  mean=0,
                  std=0.01,
-                 filler='msra',
+                 filler='msra', # 矩阵内容的初始化方法
                  fan_in=None,
                  fan_out=None,
                  name=None):
@@ -31,7 +31,7 @@ class Weight(object):
         rng = np.random.RandomState()
 
         if isinstance(w_shape, collections.Iterable) and not is_bias:
-            if len(w_shape) > 1 and len(w_shape) < 5:
+            if len(w_shape) > 1 and len(w_shape) < 5: # 2-4维矩阵
                 fan_in = np.prod(w_shape[1:])
                 fan_out = np.prod(w_shape) / w_shape[1]
                 n = (fan_in + fan_out) / 2.
@@ -49,7 +49,8 @@ class Weight(object):
         if fan_in and fan_out:
             n = (fan_in + fan_out) / 2.
 
-        if filler == 'gaussian':
+        # weight矩阵里面的填充
+        if filler == 'gaussian': 
             self.np_values = np.asarray(rng.normal(mean, std, w_shape), dtype=theano.config.floatX)
         elif filler == 'msra':
             self.np_values = np.asarray(
@@ -131,15 +132,17 @@ class Layer(object):
 
 
 class TensorProductLayer(Layer):
-
+    '''
+    params: 
+    '''
     def __init__(self, prev_layer, n_out, params=None, bias=True):
         super().__init__(prev_layer)
         self._bias = bias
         n_in = self._input_shape[-1]
 
         if params is None:
-            self.W = Weight((n_in, n_out), is_bias=False)
-            if bias:
+            self.W = Weight((n_in, n_out), is_bias=False) # _input_shape[-1] * n_out
+            if bias: # n_out*1
                 self.b = Weight((n_out,), is_bias=True, mean=0.1, filler='constant')
         else:
             self.W = params[0]
@@ -147,15 +150,18 @@ class TensorProductLayer(Layer):
                 self.b = params[1]
 
         # parameters of the model
+        # 模型训练的参数
         self.params = [self.W]
         if bias:
             self.params.append(self.b)
-
+        
+        # prev_layer.output_shape = N x D_1 x D_2 x ... x D_{n-1} x D_n
+        # output_shape            = N x D_1 x D_2 x ... x D_{n-1} x n_out
         self._output_shape = [self._input_shape[0]]
-        self._output_shape.extend(self._input_shape[1:-1])
-        self._output_shape.append(n_out)
+        self._output_shape.extend(self._input_shape[1:-1]) # 去掉最后一维
+        self._output_shape.append(n_out) # 加上新添的一个维度
 
-    def set_output(self):
+    def set_output(self): # set网络的输出
         self._output = tensor.dot(self._prev_layer.output, self.W.val)
         if self._bias:
             self._output += self.b.val
@@ -164,7 +170,7 @@ class TensorProductLayer(Layer):
 class BlockDiagonalLayer(Layer):
     """
     Compute block diagonal matrix multiplication efficiently using broadcasting
-
+    使用广播有效地计算 块对角矩阵乘法
     Last dimension will be used for matrix multiplication.
 
     prev_layer.output_shape = N x D_1 x D_2 x ... x D_{n-1} x D_n
@@ -203,7 +209,7 @@ class BlockDiagonalLayer(Layer):
             self._output += tensor.shape_padleft(self.b.val)
 
 
-class AddLayer(Layer):
+class AddLayer(Layer): # 加法层
 
     def __init__(self, prev_layer, add_layer):
         super().__init__(prev_layer)
@@ -214,7 +220,7 @@ class AddLayer(Layer):
         self._output = self._prev_layer.output + self._add_layer.output
 
 
-class EltwiseMultiplyLayer(Layer):
+class EltwiseMultiplyLayer(Layer): # 乘法层
 
     def __init__(self, prev_layer, mult_layer):
         super().__init__(prev_layer)
@@ -225,7 +231,7 @@ class EltwiseMultiplyLayer(Layer):
         self._output = self._prev_layer.output * self._mult_layer.output
 
 
-class FlattenLayer(Layer):
+class FlattenLayer(Layer): # 拉直层
 
     def __init__(self, prev_layer):
         super().__init__(prev_layer)
@@ -236,7 +242,7 @@ class FlattenLayer(Layer):
             self._prev_layer.output.flatten(2)  # flatten from the second dim
 
 
-class DimShuffleLayer(Layer):
+class DimShuffleLayer(Layer): #形状转换层
 
     def __init__(self, prev_layer, shuffle_pattern):
         super().__init__(prev_layer)
@@ -250,7 +256,7 @@ class DimShuffleLayer(Layer):
         self._output = self._prev_layer.output.dimshuffle(self._shuffle_pattern)
 
 
-class ReshapeLayer(Layer):
+class ReshapeLayer(Layer): # reshape层
 
     def __init__(self, prev_layer, reshape):
         super().__init__(prev_layer)
@@ -263,7 +269,7 @@ class ReshapeLayer(Layer):
         self._output = tensor.reshape(self._prev_layer.output, self._output_shape)
 
 
-class ConvLayer(Layer):
+class ConvLayer(Layer): #卷积层
     """Conv Layer
     filter_shape: [n_out_channel, n_height, n_width]
 
@@ -333,7 +339,7 @@ class ConvLayer(Layer):
         self._output = conv_out + self.b.val.dimshuffle('x', 0, 'x', 'x')
 
 
-class PoolLayer(Layer):
+class PoolLayer(Layer): # 2D池化层
 
     def __init__(self, prev_layer, pool_size=(2, 2), padding=(1, 1)):
         super().__init__(prev_layer)
@@ -354,7 +360,7 @@ class PoolLayer(Layer):
         self._output = pooled_out
 
 
-class Unpool3DLayer(Layer):
+class Unpool3DLayer(Layer): # 3D解池化层
     """3D Unpooling layer for a convolutional network """
 
     def __init__(self, prev_layer, unpool_size=(2, 2, 2), padding=(0, 0, 0)):
@@ -386,7 +392,7 @@ class Unpool3DLayer(Layer):
         self._output = unpooled_output
 
 
-class Conv3DLayer(Layer):
+class Conv3DLayer(Layer): # 3D卷积层
     """3D Convolution layer"""
 
     def __init__(self, prev_layer, filter_shape, padding=None, params=None):
@@ -583,15 +589,16 @@ class SoftmaxWithLoss3D(object):
     def __init__(self, input):
         self.input = input
         self.exp_x = tensor.exp(self.input)
-        self.sum_exp_x = tensor.sum(self.exp_x, axis=2, keepdims=True)
+        self.sum_exp_x = tensor.sum(self.exp_x, axis=2, keepdims=True) # e^x
+        print(self.input)
 
-    def prediction(self):
+    def prediction(self): # softmax函数 体素矩阵 预测两次 最后做一个平均
         return self.exp_x / self.sum_exp_x
 
-    def error(self, y, threshold=0.5):
+    def error(self, y, threshold=0.5): # 体素预测不准确概率
         return tensor.mean(tensor.eq(tensor.ge(self.prediction(), threshold), y))
 
-    def loss(self, y):
+    def loss(self, y): # sum(-y*prediction) + log(sum(e^x))
         """
         y must be a tensor that has the same dimensions as the input. For each
         channel, only one element is one indicating the ground truth prediction
@@ -601,7 +608,7 @@ class SoftmaxWithLoss3D(object):
             tensor.sum(-y * self.input, axis=2, keepdims=True) + tensor.log(self.sum_exp_x))
 
 
-class ConcatLayer(Layer):
+class ConcatLayer(Layer): # 指定维度相加
 
     def __init__(self, prev_layers, axis=1):
         """

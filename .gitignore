@@ -25,3 +25,6 @@ ShapeNet/
 
 # test
 test.py
+
+# linecount
+line-cout.sh
