@@ -76,14 +76,14 @@ class Solver(object):
 
     def __init__(self, net):
         self.net = net
-        self.lr = theano.shared(np.float32(1)) # learning rate 学习率
+        self.lr = theano.shared(np.float32(1))  # learning rate 学习率
         self.iteration = theano.shared(np.float32(0))  # starts from 0 迭代次数 shared变量用于在进程间共享
         self._test = None
         self._train_loss = None
         self._test_output = None
-        self.compile_model(cfg.TRAIN.POLICY) # 训练方法adam sgd
+        self.compile_model(cfg.TRAIN.POLICY)  # 训练方法adam sgd
 
-    def compile_model(self, policy=cfg.TRAIN.POLICY): # 设置theano.function的 updates 内容
+    def compile_model(self, policy=cfg.TRAIN.POLICY):  # 设置theano.function的 updates 内容
         net = self.net
         lr = self.lr
         iteration = self.iteration
@@ -104,22 +104,24 @@ class Solver(object):
     def train_loss(self):
         if self._train_loss is None:
             print('Compiling training function')
-            self._train_loss = theano.function(
-                [self.net.x, self.net.y], self.net.loss, updates=self.updates, profile=cfg.PROFILE)
+            self._train_loss = theano.function([self.net.x, self.net.y],
+                                               self.net.loss,
+                                               updates=self.updates,
+                                               profile=cfg.PROFILE)
         self.iteration.set_value(self.iteration.get_value() + 1)
         return self._train_loss
 
     def train(self, train_queue, val_queue=None):
         ''' Given data queues, train the network '''
         # Parameter directory
-        save_dir = os.path.join(cfg.DIR.OUT_PATH) #'./output/default'
+        save_dir = os.path.join(cfg.DIR.OUT_PATH)  #'./output/default'
         if not os.path.exists(save_dir):
             os.makedirs(save_dir)
 
         # Timer for the training op and parallel data loading op.
         train_timer = Timer()
         data_timer = Timer()
-        training_losses = [] # 训练误差存储
+        training_losses = []  # 训练误差存储
 
         start_iter = 0
         # Resume training 恢复训练 直接加载已经训练好的数据
@@ -129,28 +131,28 @@ class Solver(object):
 
         # Setup learning rates
         lr = cfg.TRAIN.DEFAULT_LEARNING_RATE
-        lr_steps = [int(k) for k in cfg.TRAIN.LEARNING_RATES.keys()] # 20000 60000
+        lr_steps = [int(k) for k in cfg.TRAIN.LEARNING_RATES.keys()]  # 20000 60000
 
         print('Set the learning rate to %f.' % lr)
         self.set_lr(lr)
 
         # Main training loop
-        for train_ind in range(start_iter, cfg.TRAIN.NUM_ITERATION + 1): # 0-60000
+        for train_ind in range(start_iter, cfg.TRAIN.NUM_ITERATION + 1):  # 0-60000
             data_timer.tic()
             batch_img, batch_voxel = train_queue.get()
             data_timer.toc()
 
-            if self.net.is_x_tensor4: # 单张图片
+            if self.net.is_x_tensor4:  # 单张图片
                 batch_img = batch_img[0]
 
             # Apply one gradient step
             train_timer.tic()
-            loss = self.train_loss(batch_img, batch_voxel) # 分别赋值给了self.net.x, self.net.y
+            loss = self.train_loss(batch_img, batch_voxel)  # 分别赋值给了self.net.x, self.net.y
             train_timer.toc()
 
             training_losses.append(loss)
 
-            # Decrease learning rate at certain points 
+            # Decrease learning rate at certain points
             # '''
             # 学习率的变化
             # '''
@@ -174,7 +176,7 @@ class Solver(object):
                     batch_img, batch_voxel = val_queue.get()
                     _, val_loss, _ = self.test_output(batch_img, batch_voxel)
                     val_losses.append(val_loss)
-                print('%s Test loss: %f' % (datetime.now(), np.mean(val_losses))) # 打印平均训练误差
+                print('%s Test loss: %f' % (datetime.now(), np.mean(val_losses)))  # 打印平均训练误差
 
             if train_ind % cfg.TRAIN.NAN_CHECK_FREQ == 0:
                 # Check that the network parameters are all valid
@@ -219,13 +221,11 @@ class Solver(object):
         activation'''
         # 检测此时的网络对输入x 和 y的误差
         # Cache the output function. 将test_output函数编译
-        if self._test_output is None: 
+        if self._test_output is None:
             print('Compiling testing function')
             # Lazy load the test function
-            self._test_output = theano.function([self.net.x, self.net.y],
-                                                [self.net.output,
-                                                 self.net.loss,
-                                                 *self.net.activations])
+            self._test_output = theano.function(
+                [self.net.x, self.net.y], [self.net.output, self.net.loss, *self.net.activations])
 
         # If the ground truth data is given, evaluate loss. otherwise feed zeros and
         # does not return the loss
@@ -234,8 +234,8 @@ class Solver(object):
         if y is None:
             n_vox = cfg.CONST.N_VOX
             no_loss_return = True
-            y_val = np.zeros(
-                (cfg.CONST.BATCH_SIZE, n_vox, 2, n_vox, n_vox)).astype(theano.config.floatX)
+            y_val = np.zeros((cfg.CONST.BATCH_SIZE, n_vox, 2, n_vox,
+                              n_vox)).astype(theano.config.floatX)
         else:
             no_loss_return = False
             y_val = y

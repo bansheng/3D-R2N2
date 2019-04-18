@@ -47,42 +47,53 @@ class GRUNet(Net):
         fc7 = TensorProductLayer(flat6, n_fc_filters[0])
 
         # Set the size to be 256x4x4x4
-        s_shape = (self.batch_size, n_gru_vox, n_deconvfilter[0], n_gru_vox, n_gru_vox)
+        s_shape = (self.batch_size, n_gru_vox,
+                   n_deconvfilter[0], n_gru_vox, n_gru_vox)
 
         # Dummy 3D grid hidden representations
         prev_s = InputLayer(s_shape)
 
-        t_x_s_update = FCConv3DLayer(prev_s, fc7, (n_deconvfilter[0], n_deconvfilter[0], 3, 3, 3))
-        t_x_s_reset = FCConv3DLayer(prev_s, fc7, (n_deconvfilter[0], n_deconvfilter[0], 3, 3, 3))
+        t_x_s_update = FCConv3DLayer(
+            prev_s, fc7, (n_deconvfilter[0], n_deconvfilter[0], 3, 3, 3))
+        t_x_s_reset = FCConv3DLayer(
+            prev_s, fc7, (n_deconvfilter[0], n_deconvfilter[0], 3, 3, 3))
 
         reset_gate = SigmoidLayer(t_x_s_reset)
 
         rs = EltwiseMultiplyLayer(reset_gate, prev_s)
-        t_x_rs = FCConv3DLayer(rs, fc7, (n_deconvfilter[0], n_deconvfilter[0], 3, 3, 3))
+        t_x_rs = FCConv3DLayer(
+            rs, fc7, (n_deconvfilter[0], n_deconvfilter[0], 3, 3, 3))
 
         def recurrence(x_curr, prev_s_tensor, prev_in_gate_tensor):
             # Scan function cannot use compiled function.
             input_ = InputLayer(input_shape, x_curr)
-            conv1_ = ConvLayer(input_, (n_convfilter[0], 7, 7), params=conv1.params)
+            conv1_ = ConvLayer(
+                input_, (n_convfilter[0], 7, 7), params=conv1.params)
             pool1_ = PoolLayer(conv1_)
             rect1_ = LeakyReLU(pool1_)
-            conv2_ = ConvLayer(rect1_, (n_convfilter[1], 3, 3), params=conv2.params)
+            conv2_ = ConvLayer(
+                rect1_, (n_convfilter[1], 3, 3), params=conv2.params)
             pool2_ = PoolLayer(conv2_)
             rect2_ = LeakyReLU(pool2_)
-            conv3_ = ConvLayer(rect2_, (n_convfilter[2], 3, 3), params=conv3.params)
+            conv3_ = ConvLayer(
+                rect2_, (n_convfilter[2], 3, 3), params=conv3.params)
             pool3_ = PoolLayer(conv3_)
             rect3_ = LeakyReLU(pool3_)
-            conv4_ = ConvLayer(rect3_, (n_convfilter[3], 3, 3), params=conv4.params)
+            conv4_ = ConvLayer(
+                rect3_, (n_convfilter[3], 3, 3), params=conv4.params)
             pool4_ = PoolLayer(conv4_)
             rect4_ = LeakyReLU(pool4_)
-            conv5_ = ConvLayer(rect4_, (n_convfilter[4], 3, 3), params=conv5.params)
+            conv5_ = ConvLayer(
+                rect4_, (n_convfilter[4], 3, 3), params=conv5.params)
             pool5_ = PoolLayer(conv5_)
             rect5_ = LeakyReLU(pool5_)
-            conv6_ = ConvLayer(rect5_, (n_convfilter[5], 3, 3), params=conv6.params)
+            conv6_ = ConvLayer(
+                rect5_, (n_convfilter[5], 3, 3), params=conv6.params)
             pool6_ = PoolLayer(conv6_)
             rect6_ = LeakyReLU(pool6_)
             flat6_ = FlattenLayer(rect6_)
-            fc7_ = TensorProductLayer(flat6_, n_fc_filters[0], params=fc7.params)
+            fc7_ = TensorProductLayer(
+                flat6_, n_fc_filters[0], params=fc7.params)
             rect7_ = LeakyReLU(fc7_)
 
             prev_s_ = InputLayer(s_shape, prev_s_tensor)
@@ -112,11 +123,12 @@ class GRUNet(Net):
             return gru_out_.output, update_gate_.output
 
         s_update, _ = theano.scan(recurrence,
-            sequences=[self.x],  # along with images, feed in the index of the current frame
-            outputs_info=[tensor.zeros_like(np.zeros(s_shape),
-                                            dtype=theano.config.floatX),
-                           tensor.zeros_like(np.zeros(s_shape),
-                                             dtype=theano.config.floatX)])
+                                  # along with images, feed in the index of the current frame
+                                  sequences=[self.x],
+                                  outputs_info=[tensor.zeros_like(np.zeros(s_shape),
+                                                                  dtype=theano.config.floatX),
+                                                tensor.zeros_like(np.zeros(s_shape),
+                                                                  dtype=theano.config.floatX)])
 
         update_all = s_update[-1]
         s_all = s_update[0]
