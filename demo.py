@@ -69,10 +69,15 @@ def main():
 
     # Run the network
     voxel_prediction, _ = solver.test_output(demo_imgs)
-    # print(voxel_prediction.shape)
+    # print(voxel_prediction[0, :, 1, :, :])
 
     # Save the prediction to an OBJ file (mesh file).
+    print(voxel_prediction[0, :, 1, :, :] > cfg.TEST.VOXEL_THRESH)
+    print(type(voxel_prediction[0, :, 1, :, :]))
+    print(type(cfg.TEST.VOXEL_THRESH))
+    # print(voxel_prediction[0, :, 1, :, :].shape)
     voxel2obj(pred_file_name, voxel_prediction[0, :, 1, :, :] > cfg.TEST.VOXEL_THRESH) # 0.4
+    
 
     # Use meshlab or other mesh viewers to visualize the prediction.
     # For Ubuntu>=14.04, you can install meshlab using
