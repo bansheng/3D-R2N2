@@ -1,5 +1,6 @@
 numpy>=1.16
 Theano>=1.0.4
+pygpu>=0.7.5
 EasyDict
 Pillow
 pyyaml
