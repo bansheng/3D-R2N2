@@ -592,7 +592,7 @@ class SoftmaxWithLoss3D(object):
         self.sum_exp_x = tensor.sum(self.exp_x, axis=2, keepdims=True) # e^x
         print(self.input)
 
-    def prediction(self): # softmax函数 体素矩阵 预测两次 最后做一个平均
+    def prediction(self): # softmax函数 体素矩阵 做一个softmax
         return self.exp_x / self.sum_exp_x
 
     def error(self, y, threshold=0.5): # 体素预测不准确概率
