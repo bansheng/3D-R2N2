@@ -72,9 +72,9 @@ def main():
     # print(voxel_prediction[0, :, 1, :, :])
 
     # Save the prediction to an OBJ file (mesh file).
-    print(voxel_prediction[0, :, 1, :, :] > cfg.TEST.VOXEL_THRESH)
-    print(type(voxel_prediction[0, :, 1, :, :]))
-    print(type(cfg.TEST.VOXEL_THRESH))
+    # print(voxel_prediction[0, :, 1, :, :] > cfg.TEST.VOXEL_THRESH)
+    # print(type(voxel_prediction[0, :, 1, :, :]))
+    # print(type(cfg.TEST.VOXEL_THRESH))
     # print(voxel_prediction[0, :, 1, :, :].shape)
     voxel2obj(pred_file_name, voxel_prediction[0, :, 1, :, :] > cfg.TEST.VOXEL_THRESH) # 0.4
     
