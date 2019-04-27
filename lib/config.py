@@ -99,7 +99,7 @@ __C.TEST.NO_BG_COLOR_RANGE = [[240, 240], [240, 240], [240, 240]]
 
 __C.TEST.VISUALIZE = False
 __C.TEST.VOXEL_THRESH = [0.4] # 超过0.4认为存在
-
+__C.TEST.MULTITEST = True
 
 def _merge_a_into_b(a, b):
     """Merge config dictionary a into config dictionary b, clobbering the
