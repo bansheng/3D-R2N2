@@ -21,9 +21,9 @@ if __name__ == "__main__":
     for checkpoint_dir, pre_dir in zip(Checkpoint_dir, Pre_dir):
         print(checkpoint_dir, pre_dir)
         for index in range(1, 11):
-            checkpoint_path = os.path.join(checkpoint_dir, 'checkpoint.%d.tar' % (index*2000))
+            checkpoint_path = os.path.join(checkpoint_dir, 'weights.%d.npy' % (index*2000))
             # print(save_path)
-            symlink_path = os.path.join(checkpoint_dir, 'checkpoint.tar')
+            symlink_path = os.path.join(checkpoint_dir, 'weights.npy')
             if os.path.lexists(symlink_path):
                 os.remove(symlink_path)
             os.symlink("%s" % os.path.abspath(checkpoint_path), symlink_path)
