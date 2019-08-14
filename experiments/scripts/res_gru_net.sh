@@ -20,10 +20,10 @@ echo Logging output to "$LOG"
 export THEANO_FLAGS="floatX=float32,device=cpu,mode=FAST_RUN"
 
 python main.py \
-      --batch-size 24 \
+      --batch-size 20~ \
       --iter 60000 \
       --out $OUT_PATH \
-      --model $NET_NAME \
+      --model $NET_NAME \``
       ${*:1}
 
 python main.py \
@@ -33,3 +33,4 @@ python main.py \
       --weights $OUT_PATH/weights.npy \
       --model $NET_NAME \
       ${*:1}
+``
